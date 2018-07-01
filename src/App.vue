@@ -2,30 +2,97 @@
   <div id="app">
     <img src="./assets/logo.png">
     <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
+    <input id="input-search" type="text" class="form-control" v-model="textSearch" placeholder='Year'>
     <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
+      <template v-for="item in startFrom(yearFilter, 0)">
+        <li>{{ item.season }}</li>
+      </template>
     </ul>
-    <h2>Ecosystem</h2>
     <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
+      <template v-for="item in winners.StandingsLists" v-if="inRange(item.season)">
+        <li>{{ item.season }}</li>
+        <br />
+        <br />
+      </template>
     </ul>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: 'app',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'F1 Champions Collection',
+      seasons: [],
+      winners: [],
+      textSearch: "",
+      winYear: "",
     }
+  },
+  computed: {
+     yearFilter: function() {
+       let textSearch = this.textSearch;
+       return this.seasons.filter(function(el) {
+         return el.season.toLowerCase().indexOf(textSearch.toLowerCase()) !== -1;
+       });
+     },
+     winFilter: function() {
+       let textSearch = this.textSearch;
+       return this.winners.filter(function(el) {
+         return el.season.toLowerCase().indexOf(textSearch.toLowerCase()) !== -1;
+       });
+     }
+  },
+  mounted() {
+    // Get Seasons
+      axios.get("http://ergast.com/api/f1/seasons.json", {
+        params: {
+          limit: "100",
+          offset: "55"
+        }
+      }).then(result => {
+          this.seasons = result.data.MRData.SeasonTable.Seasons;
+      }, error => {
+          console.error(error);
+      });
+
+      //Get Champions
+      const winner = 1;
+      let winYear = this.winYear;
+
+      axios.get("http://ergast.com/api/f1/" + this.winYear + "driverStandings/" + winner + ".json", {
+        params: {
+          limit: "100",
+          offset: "55"
+        }
+      }).then(result => {
+            this.winners = result.data.MRData.StandingsTable;
+        }, error => {
+            console.error(error);
+        });
+  },
+  methods: {
+
+    startFrom (arr, idx) {
+      return arr.slice(idx);
+    },
+
+    inRange: function(year) {
+      var i;
+      for (i = 0; i < year.length; i++) {
+        console.log(year);
+        if (year >= "2005" && year <= "2015") {
+          return "Yes";
+        break;
+        }
+      }
+
+      return "";
+    }
+    
   }
 }
 </script>
