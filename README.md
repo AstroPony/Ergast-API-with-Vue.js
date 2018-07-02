@@ -1,4 +1,4 @@
-# Description
+# F1 Champions Collection
 
 > Ergast API with Vue.js and Axios
 
