@@ -1,6 +1,14 @@
-# vue-axios
+# Description
 
 > Ergast API with Vue.js and Axios
+
+# Dependancies
+> "vue - 2.5.11"
+> "axios - 0.18.0"
+
+# Process
+
+> Used "webpack-simple" for start-up template.
 
 ## Build Setup
 
@@ -15,4 +23,3 @@ npm run dev
 npm run build
 ```
 
-For detailed explanation on how things work, consult the [docs for vue-loader](http://vuejs.github.io/vue-loader).
