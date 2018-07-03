@@ -24,24 +24,24 @@
                   </b-card-header>
                   <b-collapse :id="'collapse-' + index" accordion="my-accordion" role="tabpanel">
                     <b-card-body>
-                      <b-container >
+                      <b-container class="season-content">
                         <b-row>
-                              <b-col>3 of 3</b-col>
+                              <b-col><img class="driver-img" :src="`/img/${item.winnerDetail.code}.jpg`" /></b-col>
                               <b-col>
                                 <h4>Details:</h4> 
                                 <ul>
-                                  <li>Driver Name:<br /><b>{{ item.winnerDetail.givenName }} {{ item.winnerDetail.familyName }}</b></li><br>
-                                  <li>Date-of-Birth:<br /><b>{{ item.winnerDetail.dateOfBirth }}</b></li><br>
-                                  <li>Nationality:<br /><b>{{ item.winnerDetail.nationality }}</b></li>
+                                  <li><span>Driver Name:</span><br /><b>{{ item.winnerDetail.givenName }} {{ item.winnerDetail.familyName }}</b></li><br>
+                                  <li><span>Date-of-Birth:</span><br /><b>{{ item.winnerDetail.dateOfBirth }}</b></li><br>
+                                  <li><span>Nationality:</span><br /><b>{{ item.winnerDetail.nationality }}</b></li>
                                 </ul>
                               </b-col>
                               <b-col>
                                 <h4>Additional Info:</h4> 
                                 <ul>
-                                  <li>Driver ID:<br /><b>"{{ item.winnerDetail.driverId }}"</b></li><br>
-                                  <li>Driver Number:<br /><b>{{ item.winnerDetail.permanentNumber }}</b></li><br>
-                                  <li>Driver Code:<br /><b>{{ item.winnerDetail.code }}</b></li><br>
-                                  <li>Wiki:<br /><b><a :href=item.winnerDetail.url target="_blank">{{ item.winnerDetail.givenName }} {{ item.winnerDetail.familyName }}</a></b></li>
+                                  <li><span>Driver ID:</span><br /><b>"{{ item.winnerDetail.driverId }}"</b></li><br>
+                                  <li><span>Driver Number:</span><br /><b>{{ item.winnerDetail.permanentNumber }}</b></li><br>
+                                  <li><span>Driver Code:</span><br /><b>{{ item.winnerDetail.code }}</b></li><br>
+                                  <li><span>Wiki:</span><br /><b><a :href=item.winnerDetail.url target="_blank">{{ item.winnerDetail.givenName }} {{ item.winnerDetail.familyName }}</a></b></li>
                                 </ul>
                               </b-col>
                           </b-row>
@@ -53,8 +53,41 @@
                                 <b-container >
                                   <b-row>
                                     <template v-for="item in rounds">
-                                      <b-list-group>
-                                        <b-list-group-item active>{{ item.round }} {{ item.raceName }} {{ item.circuitName }} {{ item.round }} {{ item.round }}</b-list-group-item>
+                                      <b-list-group class="season-rounds">
+                                        <b-list-group-item> 
+                                        <!-- v-bind:class="{'active':(item.Driver.givenName === item.winnerDetail.givenName)}" -->
+                                          <div class="round-name">
+                                            <b>{{ item.raceName }}</b>
+                                          </div>
+                                          <div class="round-circuit">
+                                            <span> Round: 
+                                              <b>{{ item.round }}</b> | Circuit: <b>{{ item.Circuit.circuitName }}</b>
+                                            </span>
+                                          </div>
+                                          <div class="round-detail">
+                                            <template v-for="item in item.Results">
+                                              <b-container >
+                                                <b-row>
+                                                  <b-col>
+                                                    <span class="round-winner">Round Winner:<br /><b>{{ item.Driver.givenName }} {{ item.Driver.familyName }}</b></span><br />
+                                                  </b-col>
+                                                </b-row>
+                                                <b-row>
+                                                  <b-col>
+                                                    <span> Constructor: <b>{{ item.Constructor.name }}</b></span><br />
+                                                    <span> Nationality: <b>{{ item.Constructor.nationality }}</b></span><br />
+                                                    <span> Wiki: <b><a :href=item.Constructor.url target="_blank">{{ item.Constructor.url }}</a></b></span><br />
+                                                  </b-col>
+                                                  <b-col>
+                                                    <span> Laps: <b>{{ item.laps }}</b></span><br />
+                                                    <span> Fastest Lap: <b>{{ item.FastestLap.lap }}</b></span><br />
+                                                    <span> Average Speed (KPH): <b>{{ item.FastestLap.AverageSpeed.speed }}</b></span><br />
+                                                  </b-col>
+                                                </b-row>
+                                              </b-container>
+                                            </template>
+                                          </div>
+                                        </b-list-group-item>
                                       </b-list-group>
                                     </template>
                                   </b-row>
@@ -145,8 +178,7 @@ export default {
         }
       }
       return false;
-    }
-    
+    },
   }
 }
 </script>
@@ -159,27 +191,72 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
-}
 
-h1, h2 {
-  font-weight: normal;
-}
+  h1, h2 {
+    font-weight: normal;
+  }
 
-ul {
-  list-style-type: none;
-  padding: 0;
-}
+  ul {
+    list-style-type: none;
+    padding: 0;
 
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
+    li {
+      display: inline-block;
+      margin: 0 10px;
+    }
+  }
 
-a {
-  color: #42b983;
-}
+  a {
+    color: #42b983;
+  }
 
-.season-acc {
-  width: 100%;
+  .season-acc {
+    width: 100%;
+    .card-header {
+      a {
+        color: #fff;
+      }
+    }
+    .season-content {
+      span {
+        color: #666;
+        font-size: 13px;
+      }
+      .driver-img {
+        height: 200px;
+        border-radius: 100px;
+        box-shadow: 5px 5px 10px #ddd;
+      }
+    }
+    .season-rounds {
+        width: 100%;
+        .list-group-item {
+          margin-bottom: 2px;
+          .round-name {
+              float: left;
+          }
+          .round-circuit {
+              float: right;
+              span {
+                line-height: 23px;
+              }
+          }
+        }
+    }
+    .round-detail {
+      display: inline-block;
+      height: auto;
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      width: 100%;
+      .round-winner {
+        b {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+
 }
 </style>
