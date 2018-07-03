@@ -26,7 +26,7 @@
                     <b-card-body>
                       <b-container class="season-content">
                         <b-row>
-                              <b-col><img class="driver-img" :src="`/img/${item.winnerDetail.code}.jpg`" /></b-col>
+                              <b-col><img class="driver-img" :src="`/img/${item.winnerCode}.jpg`" /></b-col>
                               <b-col>
                                 <h4>Details:</h4> 
                                 <ul>
@@ -40,14 +40,14 @@
                                 <ul>
                                   <li><span>Driver ID:</span><br /><b>"{{ item.winnerDetail.driverId }}"</b></li><br>
                                   <li><span>Driver Number:</span><br /><b>{{ item.winnerDetail.permanentNumber }}</b></li><br>
-                                  <li><span>Driver Code:</span><br /><b>{{ item.winnerDetail.code }}</b></li><br>
+                                  <li><span>Driver Code:</span><br /><b>{{ item.winnerCode }}</b></li><br>
                                   <li><span>Wiki:</span><br /><b><a :href=item.winnerDetail.url target="_blank">{{ item.winnerDetail.givenName }} {{ item.winnerDetail.familyName }}</a></b></li>
                                 </ul>
                               </b-col>
                           </b-row>
                         <b-row>
                           <b-col>
-                            <b-btn id="getMore" class="btn btn-outline-success btn-sm" v-on:click="getRounds(item.season)" v-b-toggle="'inner-collapse-' + index" >Season Rounds</b-btn>
+                            <b-btn :code="item.winnerCode" :class="'btn btn-outline-success btn-sm seasonWinner'" v-on:click="getRounds(item.season)" v-b-toggle="'inner-collapse-' + index" >Season Rounds</b-btn>
                             <b-collapse :id="'inner-collapse-' + index">
                               <b-card-body>
                                 <b-container >
@@ -55,7 +55,6 @@
                                     <template v-for="item in rounds">
                                       <b-list-group class="season-rounds">
                                         <b-list-group-item> 
-                                        <!-- v-bind:class="{'active':(item.Driver.givenName === item.winnerDetail.givenName)}" -->
                                           <div class="round-name">
                                             <b>{{ item.raceName }}</b>
                                           </div>
@@ -66,8 +65,8 @@
                                           </div>
                                           <div class="round-detail">
                                             <template v-for="item in item.Results">
-                                              <b-container >
-                                                <b-row>
+                                              <b-container :class="'roundWinner'" :code="item.Driver.code">
+                                                <b-row :class="{ 'active': sameCode() }">
                                                   <b-col>
                                                     <span class="round-winner">Round Winner:<br /><b>{{ item.Driver.givenName }} {{ item.Driver.familyName }}</b></span><br />
                                                   </b-col>
@@ -124,26 +123,26 @@ export default {
     }
   },
   computed: {
-     yearFilter: function() {
-       let textSearch = this.textSearch;
-       return this.winners.filter(function(el) {
-         return el.season.toLowerCase().indexOf(textSearch.toLowerCase()) !== -1;
-       });
-     },
-     driverDetail: function () {
-        for(let j = 0; j < this.details.length; j++){
-          this.drivers.push({
-            season:       this.details[j].season, 
-            winner:       this.details[j].DriverStandings[0].Driver.givenName, 
-            winnerDetail: this.details[j].DriverStandings[0].Driver
-          });
-        }
-      return this.drivers;
-     }
+    yearFilter: function() {
+      let textSearch = this.textSearch;
+      return this.winners.filter(function(el) {
+        return el.season.toLowerCase().indexOf(textSearch.toLowerCase()) !== -1;
+      });
+    },
+    driverDetail: function () {
+      for(let j = 0; j < this.details.length; j++){
+        this.drivers.push({
+          season:       this.details[j].season, 
+          winner:       this.details[j].DriverStandings[0].Driver.givenName, 
+          winnerDetail: this.details[j].DriverStandings[0].Driver,
+          winnerCode:   this.details[j].DriverStandings[0].Driver.code
+        });
+      }
+    return this.drivers;
+    }
   },
   mounted() {
       //Get Champions
-
       axios.get("http://ergast.com/api/f1/driverStandings/1.json", {
         params: {
           limit: "100",
@@ -155,23 +154,20 @@ export default {
       }, error => {
           console.error(error);
       });
+      console.log(this.$refs)
   },
   methods: {
-    getRounds(season) {
-      // axios.get("http://ergast.com/api/f1/" + season + ".json").then(result => {
+    getRounds: function(season) {
       axios.get("http://ergast.com/api/f1/" + season + "/results/1.json").then(result => {
           this.season = result.data.MRData;
           this.rounds = this.season.RaceTable.Races;
-          console.log(this.rounds);
+          this.sameCode();
       }, error => {
           console.error(error);
-      }); 
-
+      });
     },
-
     inRange: function(year) {
-      var i;
-      for (i = 0; i < year.length; i++) {
+      for (let i = 0; i < year.length; i++) {
         if (year >= "2005" && year <= "2015") {
           return true;
         break;
@@ -179,6 +175,15 @@ export default {
       }
       return false;
     },
+    sameCode: function() {
+       setTimeout(function() {
+        let sWinner = this.querySelector(".seasonWinner").getAttribute("code");
+        let rWinner = this.querySelector(".roundWinner").getAttribute("code");
+        if (sWinner === rWinner ) {
+          return true;
+        }
+       }, 100);
+    }
   }
 }
 </script>
@@ -230,6 +235,15 @@ export default {
     }
     .season-rounds {
         width: 100%;
+        .s-r-winner {
+          border: 1px dashed #17a2b8;
+	        box-shadow: 0 0 0 3px #f5f5f5, 0 0 0 5px #17a2b8, 0 0 0 10px #f5f5f5, 0 0 2px 10px #17a2b8;
+          .round-winner {
+            b {
+              color: #17a2b8;
+            }
+          }
+        }
         .list-group-item {
           margin-bottom: 2px;
           .round-name {
