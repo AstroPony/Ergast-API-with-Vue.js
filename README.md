@@ -2,7 +2,6 @@
 
 > Ergast API with Vue.js and Axios
 
-```
 This is a simple, one file SPA that pulls specific data from the Ergast API (http://ergast.com/api/f1) for the F1 series between season 2005 and 2015.
 
 I used Vue.js because it's the latest Framework I've played around with and I'm really starting to enjoy its simplicity and ruling. 
@@ -10,6 +9,7 @@ I used Vue.js because it's the latest Framework I've played around with and I'm 
 I wanted this SPA to be as light as possible (even though it could be lighter, but that defeats the purpose) while maintaining the 'look and feel' I wanted to introduce to the available data. Being able to use 'BootstrapVue' was simply a time-saver and as their factory layout structure meets my needs, implementing the library components felt like second nature.
 
 If I had the time, I would add more SASS functionality as I believe Vue.js and SASS go together like coffee and stroopwafeltjes.
+
 
 # Dependancies
 >  - "axios": "^0.18.0",
