@@ -8,7 +8,7 @@ I used Vue.js because it's the latest Framework I've played around with and I'm 
 
 I wanted this SPA to be as light as possible (even though it could be lighter, but that defeats the purpose) while maintaining the 'look and feel' I wanted to introduce to the available data. Being able to use 'BootstrapVue' was simply a time-saver and as their factory layout structure meets my needs, implementing the library components felt like second nature.
 
-If I had the time, I would add more SASS functionality as I believe Vue.js and SASS go together like coffee and stroopwafeltjes.
+If I had the time, I would add more SASS functionality as I believe Vue.js and SASS go together like [coffee and stroopwafeltjes](https://www.google.co.za/search?rlz=1C1CHBF_enZA775ZA775&biw=1920&bih=974&tbm=isch&sa=1&ei=aYA8W5_MM-a0gAaJrr_IBQ&q=coffee+and+stroopwafeltjes&oq=coffee+and+stroopwafeltjes&gs_l=img.3...121971.124652.0.124796.11.9.0.0.0.0.282.771.2-3.3.0....0...1c.1.64.img..9.0.0....0.9iPcnN-FfYo).
 
 
 # Dependancies
