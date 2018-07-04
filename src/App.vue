@@ -2,14 +2,12 @@
   <div id="app">
     <img src="./assets/logo.png">
     <h1>{{ msg }}</h1>
-    <input id="input-search" type="text" class="form-control" placeholder='Year'>
     <div>
+       <!-- Initial Loop Render with Template if the season falls in "inRange" outcome -->
         <template
           v-for="(item, index) in driverDetail"
           v-if="inRange(item.season)"
-          :class="{ 'active': item[0] }"
           :text="item">
-          
           <b-container >
             <b-row>
               <div role="tablist" class="season-acc">
@@ -26,6 +24,7 @@
                     <b-card-body>
                       <b-container class="season-content">
                         <b-row>
+                              <!-- That's right, I literally went and found images for all the drivers. Please mind the Jensen Button image as it is wonkey :/ -->
                               <b-col><img class="driver-img" :src="`/img/${item.winnerCode}.jpg`" /></b-col>
                               <b-col>
                                 <h4>Details:</h4> 
@@ -47,40 +46,43 @@
                           </b-row>
                         <b-row>
                           <b-col>
-                            <b-btn :code="item.winnerCode" :class="'btn btn-outline-success btn-sm seasonWinner'" v-on:click="getRounds(item.season)" v-b-toggle="'inner-collapse-' + index" >Season Rounds</b-btn>
+                            <!-- Get Rounds with onclick as to not load all rounds on initial render - intention here was to save network data -->
+                            <b-btn :class="'btn btn-outline-success btn-sm'" v-on:click="getRounds(item.season)" v-b-toggle="'inner-collapse-' + index" >Season Rounds</b-btn>
                             <b-collapse :id="'inner-collapse-' + index">
                               <b-card-body>
                                 <b-container >
                                   <b-row>
-                                    <template v-for="item in rounds">
+                                    <!-- Rounds in Season Loop Render with Template -->
+                                    <template v-for="itemRound in rounds">
                                       <b-list-group class="season-rounds">
                                         <b-list-group-item> 
                                           <div class="round-name">
-                                            <b>{{ item.raceName }}</b>
+                                            <b>{{ itemRound.raceName }}</b>
                                           </div>
                                           <div class="round-circuit">
                                             <span> Round: 
-                                              <b>{{ item.round }}</b> | Circuit: <b>{{ item.Circuit.circuitName }}</b>
+                                              <b>{{ itemRound.round }}</b> | Circuit: <b>{{ itemRound.Circuit.circuitName }}</b>
                                             </span>
                                           </div>
                                           <div class="round-detail">
-                                            <template v-for="item in item.Results">
-                                              <b-container :class="'roundWinner'" :code="item.Driver.code">
-                                                <b-row :class="{ 'active': sameCode() }">
+                                            <!-- Results in Rounds Loop Render with Template -->
+                                            <template v-for="itemRes in itemRound.Results">
+                                              <b-container :class="{ 's-r-winner': item.winnerCode === itemRes.Driver.code }">
+                                                <b-row>
                                                   <b-col>
-                                                    <span class="round-winner">Round Winner:<br /><b>{{ item.Driver.givenName }} {{ item.Driver.familyName }}</b></span><br />
+                                                    <span class="round-winner">Round Winner:<br /><b>{{ itemRes.Driver.givenName }} {{ itemRes.Driver.familyName }}</b></span><br />
                                                   </b-col>
                                                 </b-row>
                                                 <b-row>
                                                   <b-col>
-                                                    <span> Constructor: <b>{{ item.Constructor.name }}</b></span><br />
-                                                    <span> Nationality: <b>{{ item.Constructor.nationality }}</b></span><br />
-                                                    <span> Wiki: <b><a :href=item.Constructor.url target="_blank">{{ item.Constructor.url }}</a></b></span><br />
+                                                    <span> Constructor: <b>{{ itemRes.Constructor.name }}</b></span><br />
+                                                    <span> Nationality: <b>{{ itemRes.Constructor.nationality }}</b></span><br />
+                                                    <span> Wiki: <b><a :href=itemRes.Constructor.url target="_blank">{{ itemRes.Constructor.url }}</a></b></span><br />
                                                   </b-col>
                                                   <b-col>
-                                                    <span> Laps: <b>{{ item.laps }}</b></span><br />
-                                                    <span> Fastest Lap: <b>{{ item.FastestLap.lap }}</b></span><br />
-                                                    <span> Average Speed (KPH): <b>{{ item.FastestLap.AverageSpeed.speed }}</b></span><br />
+                                                    <span> Laps: <b>{{ itemRes.laps }}</b></span><br />
+                                                    <span> Fastest Lap: <b>{{ itemRes.FastestLap.lap }}</b></span><br />
+                                                    <span> Average Speed (KPH): <b>{{ itemRes.FastestLap.AverageSpeed.speed }}</b></span><br />
                                                   </b-col>
                                                 </b-row>
                                               </b-container>
@@ -103,14 +105,13 @@
           </b-row>
       </b-container>
       </template>
-      
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-
+// App Start
 export default {
   name: 'app',
   data () {
@@ -123,12 +124,7 @@ export default {
     }
   },
   computed: {
-    yearFilter: function() {
-      let textSearch = this.textSearch;
-      return this.winners.filter(function(el) {
-        return el.season.toLowerCase().indexOf(textSearch.toLowerCase()) !== -1;
-      });
-    },
+  // Pushing specific detail into array for ease of access
     driverDetail: function () {
       for(let j = 0; j < this.details.length; j++){
         this.drivers.push({
@@ -142,30 +138,32 @@ export default {
     }
   },
   mounted() {
-      //Get Champions
+      // Getting all Champions/Seasons from API starting at 2005
       axios.get("http://ergast.com/api/f1/driverStandings/1.json", {
         params: {
           limit: "100",
           offset: "55"
         }
       }).then(result => {
+      // Adding results to two arrays for ease of access
           this.winners = result.data.MRData.StandingsTable;
           this.details = this.winners.StandingsLists;
       }, error => {
           console.error(error);
       });
-      console.log(this.$refs)
   },
   methods: {
+    // Getting all rounds for Season based on Season parameter
     getRounds: function(season) {
       axios.get("http://ergast.com/api/f1/" + season + "/results/1.json").then(result => {
+      // Adding results to two arrays for ease of access
           this.season = result.data.MRData;
           this.rounds = this.season.RaceTable.Races;
-          this.sameCode();
       }, error => {
           console.error(error);
       });
     },
+    // Limit amount of Seasons being render to 2005-2015 decade
     inRange: function(year) {
       for (let i = 0; i < year.length; i++) {
         if (year >= "2005" && year <= "2015") {
@@ -174,103 +172,10 @@ export default {
         }
       }
       return false;
-    },
-    sameCode: function() {
-       setTimeout(function() {
-        let sWinner = this.querySelector(".seasonWinner").getAttribute("code");
-        let rWinner = this.querySelector(".roundWinner").getAttribute("code");
-        if (sWinner === rWinner ) {
-          return true;
-        }
-       }, 100);
     }
   }
 }
 </script>
 
-<style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-
-  h1, h2 {
-    font-weight: normal;
-  }
-
-  ul {
-    list-style-type: none;
-    padding: 0;
-
-    li {
-      display: inline-block;
-      margin: 0 10px;
-    }
-  }
-
-  a {
-    color: #42b983;
-  }
-
-  .season-acc {
-    width: 100%;
-    .card-header {
-      a {
-        color: #fff;
-      }
-    }
-    .season-content {
-      span {
-        color: #666;
-        font-size: 13px;
-      }
-      .driver-img {
-        height: 200px;
-        border-radius: 100px;
-        box-shadow: 5px 5px 10px #ddd;
-      }
-    }
-    .season-rounds {
-        width: 100%;
-        .s-r-winner {
-          border: 1px dashed #17a2b8;
-	        box-shadow: 0 0 0 3px #f5f5f5, 0 0 0 5px #17a2b8, 0 0 0 10px #f5f5f5, 0 0 2px 10px #17a2b8;
-          .round-winner {
-            b {
-              color: #17a2b8;
-            }
-          }
-        }
-        .list-group-item {
-          margin-bottom: 2px;
-          .round-name {
-              float: left;
-          }
-          .round-circuit {
-              float: right;
-              span {
-                line-height: 23px;
-              }
-          }
-        }
-    }
-    .round-detail {
-      display: inline-block;
-      height: auto;
-      background-color: #f5f5f5;
-      padding: 10px;
-      border-radius: 5px;
-      width: 100%;
-      .round-winner {
-        b {
-          font-size: 20px;
-        }
-      }
-    }
-  }
-
-}
-</style>
+    <!-- Insert SCSS -->
+<style src="../css/app.scss" lang="scss"></style>
